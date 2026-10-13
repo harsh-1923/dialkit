@@ -10,6 +10,7 @@ export type PanelKeyboardOptions = {
 };
 
 const ROOT_TOGGLE = '.dialkit-folder-root > .dialkit-folder-header .dialkit-folder-header-top';
+const FOLDER_HEADER = '.dialkit-folder-header';
 const FOCUSABLE = '[role="slider"], [role="radio"][tabindex="0"], button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex="0"]';
 const MOVE_STEP = 10;
 const MOVE_STEP_LARGE = 50;
@@ -46,9 +47,11 @@ export function observePanelKeyboard(panel: HTMLElement, initial: PanelKeyboardO
   const focusFirstControl = (attempt = 0) => {
     cancelAnimationFrame(frame);
     const header = toggle();
-    const control = Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE)).find(element => (
+    const candidates = Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(element => (
       element !== header && !element.closest('.dialkit-panel-header, [inert], [aria-hidden="true"]') && element.getClientRects().length > 0
     ));
+    // Prefer a control over section headers and their toolbars.
+    const control = candidates.find(element => !element.closest(FOLDER_HEADER)) ?? candidates[0];
     if (control) { control.focus({ preventScroll: true }); return; }
     // Controls mount after the open state renders; give the adapter a few frames.
     if (attempt < 10) frame = requestAnimationFrame(() => focusFirstControl(attempt + 1));
@@ -110,6 +113,12 @@ export function observePanelKeyboard(panel: HTMLElement, initial: PanelKeyboardO
   };
 
   applyAttributes();
+  // Adapters rebuild the header when panels are added or removed; keep its attributes.
+  const observer = new MutationObserver(() => {
+    const header = toggle();
+    if (header && !options.inline && hotkey && !header.hasAttribute('aria-keyshortcuts')) applyAttributes();
+  });
+  observer.observe(panel, { childList: true, subtree: true });
   window.addEventListener('keydown', onWindowKeyDown);
   panel.addEventListener('keydown', onPanelKeyDown);
 
@@ -120,6 +129,7 @@ export function observePanelKeyboard(panel: HTMLElement, initial: PanelKeyboardO
     },
     destroy() {
       cancelAnimationFrame(frame);
+      observer.disconnect();
       window.removeEventListener('keydown', onWindowKeyDown);
       panel.removeEventListener('keydown', onPanelKeyDown);
     },
