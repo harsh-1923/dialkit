@@ -1271,6 +1271,8 @@
 .dialkit-pad-grid-horizontal { left: 0; right: 0; height: 1px; transform: translateY(-50%); }
 .dialkit-pad-center { position: absolute; top: 50%; left: 50%; width: 3px; height: 3px; border-radius: 50%; background: var(--dial-text-tertiary); transform: translate(-50%, -50%); }
 .dialkit-pad-point { position: absolute; width: 12px; height: 12px; border-radius: 50%; background: var(--dial-text-primary); box-shadow: 0 0 0 0 transparent, 0 2px 4px #0003; transform: translate(-50%, -50%); transition: box-shadow 0.15s; pointer-events: auto; cursor: grab; }
+/* A 24px hit area around the 12px point, so it is easier to grab. */
+.dialkit-pad-point::before { content: ''; position: absolute; inset: -6px; border-radius: 50%; }
 .dialkit-pad-surface[data-dragging="true"], .dialkit-pad-surface[data-dragging="true"] .dialkit-pad-point { cursor: grabbing; }
 .dialkit-pad-surface[data-dragging="true"] .dialkit-pad-point { box-shadow: 0 0 0 6px var(--dial-border-hover), 0 2px 6px #0003; }
 .dialkit-pad-fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--dial-row-gap); }
