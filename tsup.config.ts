@@ -51,6 +51,8 @@ export default defineConfig([
       'text-autosize': 'src/text-autosize.ts',
       'shortcut-utils': 'src/shortcut-utils.ts',
       'shortcut-listener': 'src/shortcut-listener.ts',
+      'panel-keyboard': 'src/panel-keyboard.ts',
+      announce: 'src/announce.ts',
     },
     format: ['esm'],
     dts: true,
