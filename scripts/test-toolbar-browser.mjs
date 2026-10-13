@@ -122,6 +122,15 @@ try {
       assert.equal(await copy.count(), layout ? 2 : 1);
       assert.equal(await copy.first().getAttribute("type"), "button");
 
+      // Escape inside the numeric editor cancels the edit without closing the panel.
+      const slider = panel.getByRole("slider").first();
+      await slider.focus();
+      await page.keyboard.press("Enter");
+      await page.keyboard.type("55");
+      await page.keyboard.press("Escape");
+      assert.equal(await toggle.getAttribute("aria-expanded"), "true");
+      await page.waitForFunction(() => document.activeElement?.getAttribute("role") === "slider");
+
       await page.evaluate(() => {
         const outside = document.createElement("button");
         outside.textContent = "Outside";

@@ -92,14 +92,17 @@ export function observePanelKeyboard(panel: HTMLElement, initial: PanelKeyboardO
     else open();
   };
 
+  // Listen on the window, after the adapters' own handlers: React, Solid and Svelte
+  // delegate events above the panel, so an editor's Escape must get to claim it first.
+  const onEscape = (event: KeyboardEvent) => {
+    if (event.key !== 'Escape' || event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    if (options.inline || !isOpen() || !(event.target instanceof Node) || !panel.contains(event.target)) return;
+    event.preventDefault();
+    close();
+  };
+
   const onPanelKeyDown = (event: KeyboardEvent) => {
     if (event.defaultPrevented) return;
-    if (event.key === 'Escape' && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
-      if (options.inline || !isOpen()) return;
-      event.preventDefault();
-      close();
-      return;
-    }
     const header = toggle();
     if (!options.move || options.inline || !event.altKey || event.ctrlKey || event.metaKey || event.target !== header) return;
     const distance = event.shiftKey ? MOVE_STEP_LARGE : MOVE_STEP;
@@ -120,6 +123,7 @@ export function observePanelKeyboard(panel: HTMLElement, initial: PanelKeyboardO
   });
   observer.observe(panel, { childList: true, subtree: true });
   window.addEventListener('keydown', onWindowKeyDown);
+  window.addEventListener('keydown', onEscape);
   panel.addEventListener('keydown', onPanelKeyDown);
 
   return {
@@ -131,6 +135,7 @@ export function observePanelKeyboard(panel: HTMLElement, initial: PanelKeyboardO
       cancelAnimationFrame(frame);
       observer.disconnect();
       window.removeEventListener('keydown', onWindowKeyDown);
+      window.removeEventListener('keydown', onEscape);
       panel.removeEventListener('keydown', onPanelKeyDown);
     },
   };
