@@ -60,11 +60,14 @@ export function mountFolder(host: HTMLElement, initial: FolderProps) {
     renderedOpen = open;
     folder.dataset.open = String(open);
     title.textContent = props.title;
-    top.setAttribute('aria-label', props.title);
-    top.setAttribute('aria-expanded', String(open));
-    if (!(props.inline && props.isRoot)) {
+    // An inline root panel is always open, so its header is not a control.
+    if (props.inline && props.isRoot) {
+      ['role', 'tabindex', 'aria-label', 'aria-expanded'].forEach(name => top.removeAttribute(name));
+    } else {
       top.setAttribute('role', 'button');
       top.tabIndex = 0;
+      top.setAttribute('aria-label', props.title);
+      top.setAttribute('aria-expanded', String(open));
     }
     if (!props.isSection) {
       content.style.display = open ? '' : 'none';

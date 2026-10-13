@@ -58,8 +58,11 @@ export function Folder({ title, children, open, defaultOpen = true, isRoot = fal
     return () => { ro.disconnect(); stopHeader(); };
   }, [isOpen]);
 
+  // An inline root panel is always open, so its header is not a control.
+  const toggleable = !(inline && isRoot);
+
   const handleToggle = () => {
-    if (inline && isRoot) return;
+    if (!toggleable) return;
     const next = !isOpen;
     setIsOpen(next);
     onOpenChange?.(next);
@@ -72,7 +75,7 @@ export function Folder({ title, children, open, defaultOpen = true, isRoot = fal
       data-open={String(isOpen)}
     >
       <div className={`dialkit-folder-header ${isRoot ? 'dialkit-panel-header' : ''}`} onClick={handleToggle}>
-        <div className="dialkit-folder-header-top" role={inline && isRoot ? undefined : "button"} tabIndex={inline && isRoot ? undefined : 0} aria-label={title} aria-expanded={isOpen} onKeyDown={(e) => activateOnKey(e, handleToggle)}>
+        <div className="dialkit-folder-header-top" role={toggleable ? "button" : undefined} tabIndex={toggleable ? 0 : undefined} aria-label={toggleable ? title : undefined} aria-expanded={toggleable ? isOpen : undefined} onKeyDown={(e) => activateOnKey(e, handleToggle)}>
           {isRoot ? (
             isOpen && (
               <div className="dialkit-folder-title-row">
