@@ -136,14 +136,20 @@ export function Folder({ title, children, open, defaultOpen = true, isRoot = fal
         <div className="dialkit-folder-content">
           <div className="dialkit-folder-inner">{children}</div>
         </div>
+      ) : isRoot ? (
+        isOpen && (
+          <div className="dialkit-folder-content">
+            <div className="dialkit-folder-inner">{children}</div>
+          </div>
+        )
       ) : <AnimatePresence initial={false}>
         {isOpen && (
           <motion.div
             className="dialkit-folder-content"
-            initial={isRoot ? undefined : { height: 0 }}
-            animate={isRoot ? undefined : { height: 'auto' }}
-            exit={isRoot ? undefined : { height: 0 }}
-            transition={isRoot ? undefined : { type: 'spring', visualDuration: 0.35, bounce: 0.1 }}
+            initial={{ height: 0 }}
+            animate={{ height: 'auto' }}
+            exit={{ height: 0 }}
+            transition={{ type: 'spring', visualDuration: 0.35, bounce: 0.1 }}
           >
             <div className="dialkit-folder-inner">{children}</div>
           </motion.div>
