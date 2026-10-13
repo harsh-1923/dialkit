@@ -756,6 +756,24 @@ class DialStoreClass {
     return null;
   }
 
+  /** Every keyed shortcut assigned to `key`, whatever its modifier. */
+  resolveShortcutTargets(key: string): Array<{
+    panelId: string;
+    path: string;
+    control: ControlMeta;
+    shortcut: ShortcutConfig;
+  }> {
+    const results: Array<{ panelId: string; path: string; control: ControlMeta; shortcut: ShortcutConfig }> = [];
+    for (const panel of this.panels.values()) {
+      for (const [path, shortcut] of Object.entries(panel.shortcuts)) {
+        if (!shortcut.key || shortcut.key.toLowerCase() !== key.toLowerCase()) continue;
+        const control = this.controlsByPanel.get(panel)?.get(path);
+        if (control) results.push({ panelId: panel.id, path, control, shortcut });
+      }
+    }
+    return results;
+  }
+
   resolveScrollOnlyTargets(): Array<{
     panelId: string;
     path: string;
