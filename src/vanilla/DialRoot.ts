@@ -3,6 +3,7 @@ import { TimelineStore } from '../store/TimelineStore';
 import { TimelineUiStore } from '../store/TimelineUiStore';
 import { blockPanelDragClick, capturePanelPointer, releasePanelPointer, getPanelCorner, getPanelDragHandle, getPanelDragOffset, getPanelDragStart, getPanelKeyboardOffset, getPanelOriginX, getPanelOriginY, hasPanelDragMoved, type PanelDragStart, type PanelDragOffset } from '../panel-drag';
 import { observePanelKeyboard } from '../panel-keyboard';
+import { announce } from '../announce';
 import { buildCopyInstruction } from '../copy-instruction';
 import { ICON_CLIPBOARD_PLAIN, ICON_CHECK } from '../icons';
 import { mountControlRenderer } from './ControlRenderer';
@@ -39,6 +40,7 @@ export function mountPanelToolbar(host: HTMLElement, id: string, hookName = 'cre
     }
     if (destroyed)
       return;
+    announce('Parameters copied');
     copy.replaceChildren(icon(ICON_CHECK));
     clearTimeout(timer);
     timer = setTimeout(() => copy.replaceChildren(icon([ICON_CLIPBOARD_PLAIN.board, ICON_CLIPBOARD_PLAIN.body])), 1500);
