@@ -1373,7 +1373,7 @@
 .dialkit-color-track-row { display: flex; align-items: center; gap: 12px; height: var(--dial-row-height); padding: 0 12px; border-radius: var(--dial-radius); background: var(--dial-surface); font-size: 13px; font-weight: 500; }
 .dialkit-color-track-row > span { flex: 0 0 52px; color: var(--dial-text-label); }
 .dialkit-color-track {
-  -webkit-appearance: none; appearance: none; flex: 1; min-width: 0; height: 100%; padding: 0; margin: 0; border: 0; background: transparent; cursor: pointer; touch-action: none;
+  -webkit-appearance: none; appearance: none; flex: 1; min-width: 0; height: 100%; padding: 0; margin: 0; border: 0; border-radius: 4px; background: transparent; cursor: pointer; touch-action: none;
 }
 .dialkit-color-hue {
   --dial-color-thumb-bg: var(--dial-color-thumb);
@@ -2632,7 +2632,7 @@
 .dialkit-root :where(button, input, textarea, [tabindex]):focus {
   outline: none;
 }
-.dialkit-root :where(button, [role="slider"], [role="button"], .dialkit-color-plane, .dialkit-pad-surface):focus-visible {
+.dialkit-root :where(button, [role="slider"], [role="button"], .dialkit-color-plane, .dialkit-color-track, .dialkit-color-css-input, .dialkit-pad-surface):focus-visible {
   outline: 2px solid var(--dial-focus-ring);
   outline-offset: -2px;
 }
@@ -2645,7 +2645,6 @@
 .dialkit-root :where(.dialkit-slider-input, .dialkit-color-value, .dialkit-preset-input):focus-visible {
   box-shadow: inset 0 -1px var(--dial-focus-ring);
 }
-.dialkit-color-css-input:focus-visible { outline: none; }
 .dialkit-shortcuts-dropdown { margin: 0; inset: auto; overflow-y: auto; }
 @media (forced-colors: active) {
   .dialkit-root { --dial-focus-ring: Highlight; }
