@@ -1,4 +1,5 @@
 import { computed, defineComponent, h, nextTick, onMounted, onUnmounted, ref, Teleport } from 'vue';
+import { MotionConfig } from 'motion-v';
 import { DialStore } from '../../store/DialStore';
 import type { PanelConfig } from '../../store/DialStore';
 import { TimelineStore } from '../../store/TimelineStore';
@@ -287,11 +288,13 @@ export const DialRoot = defineComponent({
         return null;
       }
 
+      const content = h(MotionConfig, { reducedMotion: 'user' }, { default: renderContent });
+
       if (props.mode === 'inline') {
-        return renderContent();
+        return content;
       }
 
-      return h(Teleport, { to: 'body' }, renderContent());
+      return h(Teleport, { to: 'body' }, content);
     };
   },
 });

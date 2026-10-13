@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
+import { MotionConfig } from 'motion/react';
 import { DialStore, PanelConfig } from '../store/DialStore';
 import { TimelineStore } from '../store/TimelineStore';
 import { isDevDefault } from '../env';
@@ -191,6 +192,7 @@ export function DialRoot({ position = 'top-right', defaultOpen = true, mode = 'p
   const timelineToggle = timelineCount > 0 ? <TimelineToggleButton /> : null;
 
   const content = (
+  <MotionConfig reducedMotion="user">
   <ShortcutListener>
     <div className="dialkit-root" data-mode={mode} data-theme={theme}>
       <div
@@ -257,6 +259,7 @@ export function DialRoot({ position = 'top-right', defaultOpen = true, mode = 'p
       </div>
     </div>
   </ShortcutListener>
+  </MotionConfig>
   );
 
   if (inline) {
