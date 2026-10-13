@@ -72,7 +72,7 @@ try {
   await page.getByRole('button', { name: 'Choice' }).click();
   await page.getByRole('option', { name: 'Left', exact: true }).click();
   assert.equal((await values()).choice, 'left');
-  await page.getByRole('group', { name: /^Position:/ }).focus();
+  await page.getByRole('group', { name: 'Position', exact: true }).focus();
   await page.keyboard.press('ArrowRight');
   assert.equal((await values()).position.x, .01);
   await page.getByRole('button', { name: 'Pick accent color' }).click();
@@ -103,13 +103,13 @@ try {
   assert.equal(await page.getByRole('status', { name: 'Last action' }).textContent(), 'actions.replay');
   await page.evaluate(() => window.demo.timeline.pause());
   // Presets keep their edits while the base version remains independent.
-  await page.getByRole('button', { name: 'Versions', exact: true }).first().click();
+  await page.getByRole('button', { name: /^Versions: / }).first().click();
   await page.getByRole('menuitem', { name: 'New version', exact: true }).click();
   await page.evaluate(() => window.demo.kit.setValue('radius', 50));
-  await page.getByRole('button', { name: 'Versions', exact: true }).first().click();
+  await page.getByRole('button', { name: /^Versions: / }).first().click();
   await page.getByRole('menuitemradio', { name: 'Version 1', exact: true }).click();
   assert.equal((await values()).radius, 42);
-  await page.getByRole('button', { name: 'Versions', exact: true }).first().click();
+  await page.getByRole('button', { name: /^Versions: / }).first().click();
   await page.getByRole('menuitemradio', { name: 'Version 2', exact: true }).click();
   assert.equal((await values()).radius, 50);
   await page.getByRole('button', { name: 'Close panel', exact: true }).click();
@@ -142,20 +142,21 @@ try {
   const ruler = await page.locator('.dialkit-timeline-ruler').boundingBox();
   await page.mouse.click(ruler.x + ruler.width / 2, ruler.y + ruler.height / 2);
   assert.ok(Math.abs(await page.evaluate(() => window.demo.timeline.values.time) - 2) < .02);
-  await page.getByRole('button', { name: 'Edit Move', exact: true }).click();
+  await page.getByRole('button', { name: /^Move, / }).click();
   await page.getByRole('dialog', { name: 'Edit Move', exact: true }).waitFor();
   await page.getByRole('button', { name: 'Close editor', exact: true }).click();
-  let bar = await page.getByRole('button', { name: 'Edit Move', exact: true }).boundingBox();
+  let bar = await page.getByRole('button', { name: /^Move, / }).boundingBox();
   await page.mouse.move(bar.x + bar.width / 2, bar.y + bar.height / 2); await page.mouse.down(); await page.mouse.move(bar.x + bar.width / 2 + 40, bar.y + bar.height / 2, { steps: 5 }); await page.mouse.up();
   assert.ok(await page.evaluate(() => window.demo.timeline.values.card.move.at) > .5);
-  const handle = page.getByRole('button', { name: 'Edit Move', exact: true }).locator('[data-edge="end"]');
+  const handle = page.getByRole('button', { name: /^Move, / }).locator('[data-edge="end"]');
   const edge = await handle.boundingBox();
   await page.mouse.move(edge.x + edge.width / 2, edge.y + edge.height / 2); await page.mouse.down(); await page.mouse.move(edge.x + edge.width / 2 - 35, edge.y + edge.height / 2, { steps: 5 }); await page.mouse.up();
   assert.ok(await page.evaluate(() => window.demo.timeline.values.card.move.duration) < 2);
   await page.getByRole('button', { name: 'Collapse timeline', exact: true }).click();
   await page.getByRole('button', { name: 'Expand timeline', exact: true }).click();
   // Sequence boundaries and independent property tracks remain editable.
-  const pulse = page.getByRole('button', { name: 'Edit Pulse', exact: true });
+  // A sequence is a group of step buttons, one per leg.
+  const pulse = page.locator('.dialkit-timeline-clip', { has: page.getByRole('button', { name: /^Pulse · / }) });
   const boundary = await pulse.locator('[data-boundary="0"]').boundingBox();
   await page.mouse.move(boundary.x + 2, boundary.y + boundary.height / 2); await page.mouse.down(); await page.mouse.move(boundary.x + 32, boundary.y + boundary.height / 2, { steps: 5 }); await page.mouse.up();
   assert.ok(await page.evaluate(() => DialKit.DialStore.getValue(window.demo.timeline.id, 'card.pulse.step1.duration')) > 1);
@@ -163,8 +164,8 @@ try {
   await page.getByRole('dialog', { name: /Edit Pulse/ }).waitFor();
   await page.getByRole('button', { name: 'Close editor', exact: true }).click();
   await page.evaluate(() => { window.trackTimeline = DialKit.createDialTimeline('Tracks', { duration: 5, float: { at: 0, loop: true, props: { y: { from: -9, to: 9, duration: 1 }, scale: { from: .9, to: 1.1, duration: 2 } } } }, { autoplay: false }); });
-  await page.getByRole('button', { name: 'Edit Float', exact: true }).click();
-  const track = page.getByRole('button', { name: 'Edit Float · Y', exact: true });
+  await page.getByRole('button', { name: /^Float, / }).click();
+  const track = page.getByRole('button', { name: /^Float · Y, / });
   const trackBox = await track.boundingBox();
   await page.mouse.move(trackBox.x + trackBox.width / 2, trackBox.y + trackBox.height / 2); await page.mouse.down(); await page.mouse.move(trackBox.x + trackBox.width / 2 + 40, trackBox.y + trackBox.height / 2, { steps: 5 }); await page.mouse.up();
   assert.ok(await page.evaluate(() => DialKit.DialStore.getValue(window.trackTimeline.id, 'float.y.delay')) > 0);
