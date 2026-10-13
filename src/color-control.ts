@@ -94,7 +94,7 @@ export function mountColorControl(host: HTMLElement, initial: ColorControlProps,
   });
   valueInput.addEventListener('keydown', e => {
     if (e.key === 'Enter') { if (acceptText(valueInput)) valueInput.blur(); }
-    if (e.key === 'Escape') { valueInput.value = props.value; valueInput.removeAttribute('aria-invalid'); valueInput.blur(); }
+    if (e.key === 'Escape') { e.preventDefault(); valueInput.value = props.value; valueInput.removeAttribute('aria-invalid'); valueInput.select(); }
     e.stopPropagation();
   });
 
