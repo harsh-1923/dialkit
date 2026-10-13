@@ -592,6 +592,11 @@ class DialStoreClass {
     return panel?.values[path];
   }
 
+  /** The value a control was configured with, before edits or presets. */
+  getDefaultValue(panelId: string, path: string): DialValue | undefined {
+    return this.defaultValues.get(panelId)?.[path];
+  }
+
   getValues(panelId: string): Record<string, DialValue> {
     // Return the snapshot for useSyncExternalStore compatibility
     // Use stable EMPTY_VALUES to avoid infinite loop in React 19
