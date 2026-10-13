@@ -19,7 +19,8 @@
   /* Legacy aliases */
   --dial-text-primary: rgba(255, 255, 255, 0.95);
   --dial-text-secondary: rgba(255, 255, 255, 0.6);
-  --dial-text-tertiary: rgba(255, 255, 255, 0.4);
+  --dial-text-tertiary: rgba(255, 255, 255, 0.52);
+  --dial-text-invalid: #ef7777;
 
   /* Borders */
   --dial-border: rgba(255, 255, 255, 0.1);
@@ -1393,7 +1394,7 @@
 .dialkit-color-format:hover { color: var(--dial-text-primary); }
 .dialkit-color-css-input { display: block; width: 100%; height: var(--dial-row-height); padding: 0 12px; border: 0; border-radius: var(--dial-radius); background: var(--dial-surface); outline: none; color: var(--dial-text-label); font: 500 13px 'Geist Mono', monospace; }
 .dialkit-color-css-input:focus { color: var(--dial-text-focus); }
-.dialkit-color-popover input[aria-invalid="true"], .dialkit-color-value[aria-invalid="true"] { color: #ef7777; }
+.dialkit-color-popover input[aria-invalid="true"], .dialkit-color-value[aria-invalid="true"] { color: var(--dial-text-invalid); }
 @keyframes dialkit-color-enter { from { opacity: 0; transform: translateY(3px) scale(0.98); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) {
   .dialkit-color-popover { animation: none; }
@@ -1770,8 +1771,9 @@
   --dial-text-focus: #000000;
 
   --dial-text-primary: rgba(0, 0, 0, 0.9);
-  --dial-text-secondary: rgba(0, 0, 0, 0.55);
-  --dial-text-tertiary: rgba(0, 0, 0, 0.35);
+  --dial-text-secondary: rgba(0, 0, 0, 0.6);
+  --dial-text-tertiary: rgba(0, 0, 0, 0.55);
+  --dial-text-invalid: #b42318;
 
   --dial-border: rgba(0, 0, 0, 0.1);
   --dial-border-hover: rgba(0, 0, 0, 0.15);
@@ -1818,8 +1820,9 @@
     --dial-text-focus: #000000;
 
     --dial-text-primary: rgba(0, 0, 0, 0.9);
-    --dial-text-secondary: rgba(0, 0, 0, 0.55);
-    --dial-text-tertiary: rgba(0, 0, 0, 0.35);
+    --dial-text-secondary: rgba(0, 0, 0, 0.6);
+    --dial-text-tertiary: rgba(0, 0, 0, 0.55);
+    --dial-text-invalid: #b42318;
 
     --dial-border: rgba(0, 0, 0, 0.1);
     --dial-border-hover: rgba(0, 0, 0, 0.15);
