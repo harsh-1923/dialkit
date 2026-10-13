@@ -230,8 +230,8 @@ DialStore.getPanelOpen("card");
 | --- | --- |
 | Panel | The root's `hotkey` focuses the first control, and closes the panel when pressed inside it; Escape closes and returns focus; Option/Alt + Arrow on the header moves a floating panel (Shift for larger moves) |
 | Panel or folder | Enter or Space toggles the focused header |
-| Slider | Arrows adjust one step; Shift + Arrow or Page Up/Down adjusts ten; Option/Alt + Arrow adjusts a tenth; Home/End goes to the bounds; Delete or Backspace restores the default |
-| Slider pointer | Drag to set the value; hold Option/Alt while dragging for fine control or Shift to snap to tick marks; double-click restores the default |
+| Slider | Arrows adjust one step; Shift + Arrow or Page Up/Down adjusts ten; Option/Alt + Arrow adjusts a tenth; Home/End goes to the bounds; Delete or Backspace restores a panel slider's configured value |
+| Slider pointer | Drag to set the value; hold Option/Alt while dragging for fine control or Shift to snap to tick marks; double-click restores a panel slider's configured value |
 | Numeric editor | Enter opens it from a slider; Up/Down step the typed value (Shift ×10, Option/Alt ×0.1); Enter commits, Escape cancels, Tab commits and advances |
 | XY pad | Arrows adjust axes; Shift + Arrow adjusts ten steps; Home resets; Escape cancels a drag |
 | Select or preset menu | Enter, Space, or Up/Down opens; arrows, Home/End, and typing navigate; Enter/Space selects; Escape closes |
@@ -267,7 +267,7 @@ For sliders, hold the key and scroll, drag horizontally, or move the pointer acc
 
 `normal` uses the slider's step. `fine` uses 1% of its range; `coarse` uses 10%. While a slider's key is held, Shift multiplies its step by 10 and Option/Alt divides it by 10. Shortcut badges show the assigned key and interaction.
 
-Keys are matched by their position as well as their character, so a `modifier: "alt"` shortcut works on macOS, where Option changes the typed character. A shortcut's modifier must be held for it to apply, and Control combinations never match. Shortcuts pause while you type in a text field, including fields inside shadow DOM; buttons and other controls keep them working.
+Keys are matched by their position as well as their character, so a `modifier: "alt"` shortcut works on macOS, where Option changes the typed character. A shortcut's modifier must be held for it to apply, and Control combinations never match. Shortcuts pause while you type in a text field (including fields inside shadow DOM) or search a menu or list by typing; buttons and other controls keep them working. Each wheel notch moves one step; on a trackpad, a step needs about 50 pixels of scrolling.
 
 ## Custom layouts
 

@@ -239,7 +239,7 @@ In vanilla, use `createDialRoot({ mode: "inline", target: container })`.
 | `mode` | `"popover"` | `"popover"`, `"inline"` |
 | `defaultOpen` | `true` | Initial root state; a panel's `defaultCollapsed` takes precedence |
 | `onOpenChange` | — | Callback for root open state; `@open-change` in Vue |
-| `hotkey` | — | Key that brings focus to the panel, such as `"ctrl+period"`; `mod` means Command on Apple platforms and Control elsewhere |
+| `hotkey` | — | Key that brings focus to the panel, such as `"ctrl+period"`; `mod` means Command on Apple platforms and Control elsewhere. With several roots, give each its own key |
 
 Framework roots are hidden in production builds unless `productionEnabled` is set to `true`. Vanilla roots are enabled by default; set `productionEnabled: false` to hide them. This setting controls the editor UI, not the code consuming its values.
 
