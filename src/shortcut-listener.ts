@@ -8,7 +8,7 @@ import {
   getActiveModifier,
   getEffectiveStep,
   getEventModifiers,
-  getShortcutKey,
+  getShortcutKeys,
   isModifierKey,
   isTextEntryFocused,
 } from './shortcut-utils';
@@ -23,6 +23,8 @@ type Interaction = NonNullable<ShortcutConfig['interaction']>;
 
 /** Scroll distance, in pixels, for one step from a trackpad or smooth-scrolling wheel. */
 export const WHEEL_STEP_DISTANCE = 50;
+/** A pause this long (ms) between wheel events starts a new gesture. */
+const WHEEL_GESTURE_GAP = 200;
 const LINE_HEIGHT = 16;
 const ARROW_DIRECTION: Record<string, number> = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1 };
 
@@ -70,11 +72,13 @@ export function getWheelDistance(event: Pick<WheelEvent, 'deltaX' | 'deltaY' | '
 }
 
 /**
- * Steps for one wheel event. A notched wheel moves one step per notch; small
- * trackpad deltas accumulate so a swipe moves a step every `WHEEL_STEP_DISTANCE` pixels.
+ * Steps for one wheel event. A notched wheel, a line- or page-based delta, or the
+ * first event of a gesture moves one step; after that, small trackpad deltas
+ * accumulate so a swipe moves a step every `WHEEL_STEP_DISTANCE` pixels.
  */
-export function takeWheelSteps(accumulated: number, distance: number): { steps: number; remainder: number } {
-  if (Math.abs(distance) >= WHEEL_STEP_DISTANCE) return { steps: Math.sign(distance), remainder: 0 };
+export function takeWheelSteps(accumulated: number, distance: number, discrete = false): { steps: number; remainder: number } {
+  if (!distance) return { steps: 0, remainder: accumulated };
+  if (discrete || Math.abs(distance) >= WHEEL_STEP_DISTANCE) return { steps: Math.sign(distance), remainder: 0 };
   const total = Math.sign(accumulated) === Math.sign(distance) ? accumulated + distance : distance;
   const steps = Math.trunc(total / WHEEL_STEP_DISTANCE) || 0;
   return { steps, remainder: total - steps * WHEEL_STEP_DISTANCE };
@@ -104,6 +108,7 @@ function listen() {
   let lastX: number | undefined;
   let accumulator = 0;
   let wheelAccumulator = 0;
+  let lastWheel = -Infinity;
 
   /** A held slider shortcut whose own modifier is also held. Exact modifier matches win. */
   const heldTarget = (event: KeyboardEvent | WheelEvent | MouseEvent, interactions: Interaction[]): Target | null => {
@@ -165,7 +170,9 @@ function listen() {
       return;
     }
 
-    const key = getShortcutKey(event);
+    // Prefer the typed character ("+", "?") and fall back to the physical key.
+    const keys = getShortcutKeys(event);
+    const key = keys.find(candidate => DialStore.resolveShortcutTargets(candidate).length > 0) ?? keys[keys.length - 1];
     const id = event.code || key;
     const wasHeld = held.has(id);
     held.set(id, key);
@@ -184,7 +191,7 @@ function listen() {
   };
 
   const keyup = (event: KeyboardEvent) => {
-    held.delete(event.code || getShortcutKey(event));
+    held.delete(event.code || getShortcutKeys(event).pop()!);
     // macOS sends no keyup for keys released while Command is down.
     if (event.key === 'Meta') held.clear();
     resetPointer();
@@ -208,7 +215,9 @@ function listen() {
     if (!target || scale === undefined) return;
 
     event.preventDefault();
-    const { steps, remainder } = takeWheelSteps(wheelAccumulator, getWheelDistance(event, window.innerHeight));
+    const gestureStart = event.timeStamp - lastWheel > WHEEL_GESTURE_GAP;
+    lastWheel = event.timeStamp;
+    const { steps, remainder } = takeWheelSteps(gestureStart ? 0 : wheelAccumulator, getWheelDistance(event, window.innerHeight), gestureStart || event.deltaMode !== 0);
     wheelAccumulator = remainder;
     if (steps) adjust(target, scale, steps);
   };
@@ -251,7 +260,8 @@ function listen() {
   };
 
   window.addEventListener('keydown', keydown);
-  window.addEventListener('keyup', keyup);
+  // Capture keyup so a host handler that stops propagation can't leave a key held.
+  window.addEventListener('keyup', keyup, true);
   window.addEventListener('wheel', wheel, { passive: false });
   window.addEventListener('mousedown', mousedown);
   window.addEventListener('mousemove', mousemove);
@@ -259,7 +269,7 @@ function listen() {
   window.addEventListener('blur', blur);
   return () => {
     window.removeEventListener('keydown', keydown);
-    window.removeEventListener('keyup', keyup);
+    window.removeEventListener('keyup', keyup, true);
     window.removeEventListener('wheel', wheel);
     window.removeEventListener('mousedown', mousedown);
     window.removeEventListener('mousemove', mousemove);

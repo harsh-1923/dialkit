@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { DialStore } from './store/DialStore';
 import { getShortcutStepScale, getWheelDistance, mountShortcutListener, takeWheelSteps, WHEEL_STEP_DISTANCE } from './shortcut-listener';
-import { formatAriaKeyshortcut, getActiveModifier, getShortcutKey, matchesHotkey, parseHotkey } from './shortcut-utils';
+import { formatAriaKeyshortcut, getActiveModifier, getShortcutKey, getShortcutKeys, matchesHotkey, parseHotkey } from './shortcut-utils';
 
 type Init = Partial<Record<'key' | 'code', string>> & Partial<Record<'altKey' | 'shiftKey' | 'metaKey' | 'ctrlKey' | 'repeat', boolean>> & Partial<Record<'deltaX' | 'deltaY' | 'deltaMode' | 'clientX' | 'button', number>>;
 
@@ -15,6 +15,12 @@ function fakeEvent(type: string, init: Init = {}) {
 const originalWindow = globalThis.window;
 
 describe('shortcut key matching', () => {
+  it('lists the typed character first, then the physical key a modifier replaced', () => {
+    assert.deepEqual(getShortcutKeys({ key: '+', code: 'Equal', altKey: false, shiftKey: true }), ['+', '=']);
+    assert.deepEqual(getShortcutKeys({ key: '?', code: 'Slash', altKey: false, shiftKey: true }), ['?', '/']);
+    assert.deepEqual(getShortcutKeys({ key: 'r', code: 'KeyR', altKey: false, shiftKey: false }), ['r']);
+  });
+
   it('uses the physical key when a modifier changes the typed character', () => {
     assert.equal(getShortcutKey({ key: '®', code: 'KeyR', altKey: true, shiftKey: false }), 'r');
     assert.equal(getShortcutKey({ key: '!', code: 'Digit1', altKey: false, shiftKey: true }), '1');
@@ -79,6 +85,12 @@ describe('wheel steps', () => {
     assert.deepEqual(takeWheelSteps(40, -5), { steps: 0, remainder: -5 });
   });
 
+  it('moves one step for line-based deltas and at the start of a gesture', () => {
+    assert.deepEqual(takeWheelSteps(0, 48, true), { steps: 1, remainder: 0 });
+    assert.deepEqual(takeWheelSteps(0, -3, true), { steps: -1, remainder: 0 });
+    assert.deepEqual(takeWheelSteps(20, 0), { steps: 0, remainder: 20 });
+  });
+
   it('scales held shortcuts with Shift and Option, and leaves Command and Control to the browser', () => {
     const shortcut = { key: 'r' };
     assert.equal(getShortcutStepScale(fakeEvent('keydown', { shiftKey: true }), shortcut), 10);
@@ -106,11 +118,13 @@ describe('shared shortcut listener', () => {
       blur: [0, 0, 20, 1],
       visible: true,
       zoom: [100, 25, 200, 1],
+      grid: false,
     }, {
       radius: { key: 'r' },
       blur: { key: 'b', modifier: 'alt' },
       visible: { key: 'v' },
       zoom: { interaction: 'scroll-only' },
+      grid: { key: '+', modifier: 'shift' },
     });
     listener = mountShortcutListener();
   });
@@ -156,6 +170,11 @@ describe('shared shortcut listener', () => {
     dispatch('keyup', { key: 'v', code: 'KeyV' });
     dispatch('keydown', { key: 'v', code: 'KeyV', ctrlKey: true });
     assert.equal(value('visible'), false, 'Control+V is paste, not the V shortcut');
+  });
+
+  it('matches a shortcut on a shifted symbol by the typed character', () => {
+    dispatch('keydown', { key: '+', code: 'Equal', shiftKey: true });
+    assert.equal(value('grid'), true);
   });
 
   it('clears keys when Command is released, since macOS sends no keyup for them', () => {

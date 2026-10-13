@@ -45,6 +45,8 @@ export function snapToDecile(rawValue: number, min: number, max: number): number
 
 const TEXT_INPUT_TYPES = new Set(['', 'text', 'search', 'email', 'url', 'tel', 'password', 'number', 'date', 'datetime-local', 'month', 'time', 'week']);
 const TEXT_ROLES = '[role="textbox"], [role="searchbox"], [role="combobox"], [role="spinbutton"]';
+// Composite widgets that use letters for type-ahead.
+const TYPE_AHEAD_ROLES = '[role="menu"], [role="menubar"], [role^="menuitem"], [role="listbox"], [role="option"], [role="tree"], [role="treeitem"], [role="grid"], [role="treegrid"]';
 
 /** The focused element, following open shadow roots to the element that actually receives keys. */
 export function getDeepActiveElement(root: Document | ShadowRoot = document): Element | null {
@@ -54,9 +56,10 @@ export function getDeepActiveElement(root: Document | ShadowRoot = document): El
 }
 
 /**
- * Whether keys are currently typing text. Assigned shortcuts pause only here:
- * buttons, sliders and other widgets keep shortcuts working, and widgets that
- * use a key themselves claim it with `preventDefault()` before shortcuts see it.
+ * Whether keys are currently typing text, or searching a menu or list by its
+ * first letters. Assigned shortcuts pause only here: buttons, sliders and other
+ * widgets keep them working, and widgets that use a key themselves claim it
+ * with `preventDefault()` before shortcuts see it.
  */
 export function isTextEntryFocused(): boolean {
   if (typeof document === 'undefined') return false;
@@ -65,7 +68,7 @@ export function isTextEntryFocused(): boolean {
   if (element instanceof HTMLInputElement) return TEXT_INPUT_TYPES.has(element.type);
   if (element instanceof HTMLTextAreaElement || element instanceof HTMLSelectElement) return true;
   if ((element as HTMLElement).isContentEditable) return true;
-  return !!element.closest(TEXT_ROLES);
+  return !!element.closest(`${TEXT_ROLES}, ${TYPE_AHEAD_ROLES}`);
 }
 
 /** @deprecated Use `isTextEntryFocused`, which no longer pauses shortcuts on buttons and widgets. */
@@ -111,15 +114,21 @@ function keyForCode(code: string): string | undefined {
 }
 
 /**
- * The shortcut key an event refers to. Option and Shift change the typed
- * character (Option+R types "®" on macOS, Shift+1 types "!"), so when a
- * modifier produced something other than a letter or digit, use the physical key.
+ * The keys an event can stand for, typed character first. Option and Shift
+ * change the character (Option+R types "®" on macOS, Shift+1 types "!"), so the
+ * physical key follows as a fallback when it differs.
  */
+export function getShortcutKeys(e: Pick<KeyboardEvent, 'key' | 'code' | 'altKey' | 'shiftKey'>): string[] {
+  const typed = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+  const physical = keyForCode(e.code);
+  const modified = e.altKey || e.shiftKey || typed === 'Dead' || typed === 'Unidentified';
+  return modified && physical && physical !== typed ? [typed, physical] : [typed];
+}
+
+/** The key an event refers to: the typed character, or the physical key when a modifier replaced it with a symbol. */
 export function getShortcutKey(e: Pick<KeyboardEvent, 'key' | 'code' | 'altKey' | 'shiftKey'>): string {
-  const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
-  if ((e.altKey || e.shiftKey) && !/^[a-z0-9]$/.test(key)) return keyForCode(e.code) ?? key;
-  if (key === 'Dead' || key === 'Unidentified') return keyForCode(e.code) ?? key;
-  return key;
+  const [typed, physical] = getShortcutKeys(e);
+  return physical !== undefined && !/^[a-z0-9]$/.test(typed) ? physical : typed;
 }
 
 export type Hotkey = { key: string; modifiers: EventModifier[] };
@@ -167,7 +176,7 @@ export function parseHotkey(hotkey: string): Hotkey | null {
 
 export function matchesHotkey(e: KeyboardEvent, hotkey: Hotkey): boolean {
   const modifiers = getEventModifiers(e);
-  return getShortcutKey(e) === hotkey.key
+  return getShortcutKeys(e).includes(hotkey.key)
     && modifiers.length === hotkey.modifiers.length
     && hotkey.modifiers.every(modifier => modifiers.includes(modifier));
 }
