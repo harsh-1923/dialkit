@@ -651,6 +651,11 @@
   color: var(--dial-text-label);
 }
 
+@media (prefers-reduced-motion: reduce) {
+  /* Adapters set the pill transition inline. */
+  .dialkit-segmented-pill { transition: none !important; }
+}
+
 /* Toggle */
 .dialkit-toggle {
   display: flex;
@@ -1400,7 +1405,7 @@
 @keyframes dialkit-color-enter { from { opacity: 0; transform: translateY(3px) scale(0.98); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) {
   .dialkit-color-popover { animation: none; }
-  .dialkit-color-formats .dialkit-segmented-pill { transition: none; }
+  .dialkit-color-swatch:hover { transform: none; }
 }
 
 /* Preset Manager */
