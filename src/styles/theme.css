@@ -1907,6 +1907,10 @@
   touch-action: none;
 }
 
+.dialkit-timeline-resize-handle:focus-visible {
+  background: linear-gradient(var(--dial-focus-ring), var(--dial-focus-ring)) center / 100% 2px no-repeat;
+}
+
 .dialkit-timeline-dock::-webkit-scrollbar {
   width: 8px;
 }
@@ -2445,8 +2449,8 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 12px;
-  margin-left: -6px;
+  width: 24px;
+  margin-left: -12px;
   cursor: ew-resize;
   touch-action: none;
 }
@@ -2457,7 +2461,7 @@
   z-index: 8;
   width: 0;
   height: 0;
-  margin-left: 6px;
+  margin-left: 12px;
 }
 
 .dialkit-timeline-playhead-anchor::before {
@@ -2501,11 +2505,20 @@
   position: absolute;
   top: 27px;
   bottom: 0;
-  left: 5px;
+  left: 11px;
   z-index: 5;
   width: 2px;
   background: var(--dial-text-root);
   pointer-events: none;
+}
+
+/* The ring goes on the flag rather than around the full-height hit area. */
+.dialkit-timeline .dialkit-timeline-playhead-control:focus-visible {
+  outline: none;
+}
+
+.dialkit-timeline-playhead-control:focus-visible .dialkit-timeline-playhead-flag {
+  box-shadow: 0 0 0 2px var(--dial-focus-ring), 0 1px 4px rgba(0, 0, 0, 0.28);
 }
 
 /* ── Timeline clip popover ── */
