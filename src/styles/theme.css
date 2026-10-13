@@ -2655,6 +2655,24 @@
 .dialkit-shortcuts-dropdown { margin: 0; inset: auto; overflow-y: auto; }
 @media (forced-colors: active) {
   .dialkit-root { --dial-focus-ring: Highlight; }
+  /* Forced colors drop background tints and box shadows, so outline what they drew. */
+  .dialkit-root :where(input, textarea):focus-visible { outline: 2px solid Highlight; outline-offset: -2px; }
+  .dialkit-slider, .dialkit-toggle-track, .dialkit-pad-surface { outline: 1px solid CanvasText; outline-offset: -1px; }
+  .dialkit-slider-fill { box-sizing: border-box; border-right: 2px solid Highlight; }
+  .dialkit-toggle-track { forced-color-adjust: none; background: Canvas; }
+  .dialkit-toggle-thumb { background: CanvasText; }
+  .dialkit-toggle[data-checked="true"] .dialkit-toggle-track { background: Highlight; }
+  .dialkit-toggle[data-checked="true"] .dialkit-toggle-thumb { background: HighlightText; }
+  .dialkit-pad-point, .dialkit-pad-center { forced-color-adjust: none; background: CanvasText; }
+  .dialkit-segmented-pill { forced-color-adjust: none; background: Highlight; }
+  .dialkit-segmented-button[data-active="true"] { forced-color-adjust: none; color: HighlightText; }
+  .dialkit-select-option[data-selected="true"] { forced-color-adjust: none; background: Highlight; color: HighlightText; }
+  .dialkit-segmented-button[data-active="true"]:focus-visible,
+  .dialkit-select-option[data-selected="true"]:focus-visible { outline-color: HighlightText; }
+  .dialkit-preset-item[data-active="true"] { outline: 1px solid CanvasText; outline-offset: -1px; }
+  .dialkit-image-option[aria-pressed="true"] { border-color: Highlight; }
+  /* Here the color is the content. */
+  .dialkit-color-swatch, .dialkit-color-plane, .dialkit-color-track, .dialkit-image-frame { forced-color-adjust: none; }
 }
 
 /* Primary panel copy action */
